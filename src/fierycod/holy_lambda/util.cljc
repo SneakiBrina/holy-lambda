@@ -22,6 +22,18 @@
                            "-"
                            HL_VERSION))
 
+;; Timbre is an optional dependency, so we check for it at compile time.
+(def timbre-enabled?
+  (try
+    (require 'taoensso.timbre)
+    true
+    (catch Throwable _ false)))
+
+(defn timbre-log
+  "Resolve and apply timbre's logging dynamically."
+  [& args]
+  (apply (ns-resolve (symbol "taoensso.timbre") (symbol "log")) args))
+
 (defn- compress-strings
   [args]
   (into
@@ -52,8 +64,10 @@
 
 (defn println-err!
   [msg]
-  (binding [*out* *err*]
-    (println msg)))
+  (if timbre-enabled?
+    (timbre-log :error :msg msg)
+    (binding [*out* *err*]
+      (println msg))))
 
 (defn x->json-string
   [x]
