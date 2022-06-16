@@ -29,10 +29,10 @@
     true
     (catch Throwable _ false)))
 
-(defn timbre-log
+(defmacro timbre-log
   "Resolve and apply timbre's logging dynamically."
   [& args]
-  (apply (ns-resolve (symbol "taoensso.timbre") (symbol "log")) args))
+  `(~(symbol "taoensso.timbre" "log") ~@args))
 
 (defn- compress-strings
   [args]
@@ -172,7 +172,7 @@
       (x->json-bytes {:body       nil
                       :statusCode 200})
 
-      :else 
+      :else
       (x->json-bytes response))))
 
 #?(:clj
